@@ -55,10 +55,11 @@ public:
             conneting_edges[from].append(GraphEdge<EdgeObject>{from,to, weight});
         }
     }
-    void addVertex()
+    void addVertex(NodeObject new_data)
     {
         long int id = vertices.size;
-        vertices.append(id);
+        vertices.append(GraphNode{id,new_data});
+        conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
     }
     void printGraph()
     {
@@ -78,7 +79,7 @@ public:
             cout << "Start node not found!" << endl;
             return;
         }
-
+        
         bool visited[vertices.size] = {false};
         Queue<GraphNode<NodeObject> *> q;
         q.enqueue(start_node);
