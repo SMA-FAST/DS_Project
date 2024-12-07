@@ -29,17 +29,18 @@ struct GraphNode
 template <class NodeObject>
 ostream &operator<<(ostream &os, GraphNode<NodeObject> &node)
 {
-    os<< "Vertex " << node.id << endl;
+    os << "Vertex " << node.id << endl;
     return os;
 }
 
-template <class NodeObject,class EdgeObject>
+template <class NodeObject, class EdgeObject>
 class Graph
 {
+public:
     LinkedList<GraphNode<NodeObject>> vertices;
     LinkedList<LinkedList<GraphEdge<EdgeObject>>> conneting_edges;
-public:
-    Graph(int n=0)
+
+    Graph(int n = 0)
     {
         for (int i = 0; i < n; i++)
         {
@@ -48,27 +49,27 @@ public:
             conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
         }
     }
-    bool addEdge(int from, int to, float weight, EdgeObject new_data=EdgeObject())
+    bool addEdge(int from, int to, float weight, EdgeObject new_data = EdgeObject())
     {
         if (to < vertices.size && from < vertices.size)
         {
-            conneting_edges[from].append(GraphEdge<EdgeObject>{from,to, weight,new_data});
+            conneting_edges[from].append(GraphEdge<EdgeObject>{from, to, weight, new_data});
             return true;
         }
         return false;
     }
-    void addVertex(NodeObject new_data=NodeObject())
+    void addVertex(NodeObject new_data = NodeObject())
     {
         long int id = vertices.size;
-        vertices.append(GraphNode{id,new_data});
+        vertices.append(GraphNode{id, new_data});
         conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
     }
     void printGraph()
     {
         for (int i = 0; i < vertices.size; i++)
         {
-            cout<<vertices[i];
-            cout<<"Connection Edges: \n";
+            cout << vertices[i];
+            cout << "Connection Edges: \n";
             conneting_edges[i].display();
         }
     }
@@ -81,7 +82,7 @@ public:
             cout << "Start node not found!" << endl;
             return;
         }
-        
+
         bool visited[vertices.size] = {false};
         Queue<GraphNode<NodeObject> *> q;
         q.enqueue(start_node);
@@ -105,10 +106,41 @@ public:
         }
         cout << endl;
     }
+    int findVertexID(NodeObject data)
+    {
+        for (int i = 0; i < vertices.size; i++)
+        {
+            if (vertices[i].data == data)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    LinkedList<GraphEdge<EdgeObject>> getAdjacencyList(int index)
+    {
+        return conneting_edges[index];
+    }
+    int getEdgeIndex(int from, int to)
+    {
+        for (int i = 0; i < vertices.size; i++)
+        {
+            if (conneting_edges[from][i].to_vertex == to)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    GraphEdge<EdgeObject> getEdge(int from, int to)
+    {
+        i=getEdgeIndex(from,to);
+        return conneting_edges[from][to]
+    }
 };
 int main()
 {
-    Graph<char,string> g(6);
+    Graph<char, string> g(6);
     g.addEdge(0, 1, 2);
     g.addEdge(1, 2, 5);
     g.addEdge(1, 3, 7);
@@ -116,7 +148,7 @@ int main()
     g.addEdge(3, 4, 9);
     g.addEdge(3, 5, 10);
     g.addEdge(4, 5, 11);
-    g.addEdge(4,0,1);
+    g.addEdge(4, 0, 1);
     g.printGraph();
     g.BFS(4);
     return 0;
