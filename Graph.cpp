@@ -1,7 +1,7 @@
 // version 2.1
 #include <iostream>
 #include "Queue.cpp"
-//#include "Stack.cpp"
+#include "Stack.cpp"
 #include "LinkedList.cpp"
 using namespace std;
 
@@ -39,7 +39,7 @@ class Graph
     LinkedList<GraphNode<NodeObject>> vertices;
     LinkedList<LinkedList<GraphEdge<EdgeObject>>> conneting_edges;
 public:
-    Graph(int n)
+    Graph(int n=0)
     {
         for (int i = 0; i < n; i++)
         {
@@ -48,14 +48,16 @@ public:
             conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
         }
     }
-    void addEdge(int from, int to, float weight)
+    bool addEdge(int from, int to, float weight, EdgeObject new_data=EdgeObject())
     {
         if (to < vertices.size && from < vertices.size)
         {
-            conneting_edges[from].append(GraphEdge<EdgeObject>{from,to, weight});
+            conneting_edges[from].append(GraphEdge<EdgeObject>{from,to, weight,new_data});
+            return true;
         }
+        return false;
     }
-    void addVertex(NodeObject new_data)
+    void addVertex(NodeObject new_data=NodeObject())
     {
         long int id = vertices.size;
         vertices.append(GraphNode{id,new_data});
@@ -106,7 +108,7 @@ public:
 };
 int main()
 {
-    Graph<string,string> g(6);
+    Graph<char,string> g(6);
     g.addEdge(0, 1, 2);
     g.addEdge(1, 2, 5);
     g.addEdge(1, 3, 7);

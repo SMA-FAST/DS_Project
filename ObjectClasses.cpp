@@ -1,17 +1,18 @@
-//Road, Vehicle, etc classes
+//Road, Vehicle, etc structes
 #include<string>
 using namespace std;
-class Road
+struct Road
 {
     char from_intersection;
     char to_intersection;
     string status;
 };
-class Intersection
+//Since there is no additional information in intersection we can just pass char to template of vertex to store the name
+struct Intersection
 {
     char name;
 };
-class Vehicle
+struct Vehicle
 {
     string id;
     string priority;
