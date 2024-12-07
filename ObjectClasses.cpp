@@ -1,5 +1,8 @@
 // Road, Vehicle, etc structes
 #include <string>
+#define HIGH 0
+#define MEDIUM 1
+#define LOW 2
 using namespace std;
 struct Road
 {
@@ -8,19 +11,19 @@ struct Road
     int travel_time;
     string status;
     bool is_closed;
-    Road(char from, char to,int weight, string status)
+    Road(char from, char to, int weight, string status)
     {
-        this->from=from;
-        this->to=to;
-        travel_time=weight;
-        this->status=status;
-        if(status=="Clear")
+        this->from = from;
+        this->to = to;
+        travel_time = weight;
+        this->status = status;
+        if (status == "Clear")
         {
-            is_closed=false;
+            is_closed = false;
         }
         else
         {
-            is_closed=true;
+            is_closed = true;
         }
     }
 };
@@ -32,5 +35,31 @@ struct Intersection
 struct Vehicle
 {
     string id;
-    string priority;
+    int priority;
+    Vehicle(string id)
+    {
+        this->id = id;
+        priority = LOW;
+    }
+    Vehicle(string id, int priority)
+    {
+        this->id = id;
+        this->priority = priority;
+    }
+    Vehicle(string id, string priority)
+    {
+        this->id = id;
+        if (priority == "High")
+        {
+            this->priority = HIGH;
+        }
+        else if (priority == "Medium")
+        {
+            this->priority = MEDIUM;
+        }
+        else
+        {
+            this->priority = LOW;
+        }
+    }
 };
