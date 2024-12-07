@@ -138,19 +138,3 @@ public:
         clear();
     }
 };
-
-int main()
-{
-    Stack<float> stack;
-    stack.push(1.0f);
-    stack.push(2.0f);
-    stack.push(3.0f);
-    stack.display();
-    cout << "Length: " << stack.length() << endl;
-    cout << "Top element: " << stack.peek() << endl;
-    Stack <float> stack2 = stack;
-    stack2.display();
-    Stack <float> stack3;
-    stack3 = stack;
-    stack3.display();
-}
