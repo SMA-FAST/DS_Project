@@ -43,7 +43,7 @@ public:
     {
         for (long int id = 0; id < n; id++)
         {
-            GraphNode node{id, id + 65};
+            GraphNode node{id, char(id + 65)};
             vertices.append(node);
             connecting_edges.append(LinkedList<GraphEdge>());
         }
@@ -235,7 +235,7 @@ public:
     GraphEdge getEdge(long int from, long int to)
     {
         long int i = getEdgeIndex(from, to);
-        return connecting_edges[from][to];
+        return connecting_edges[from][i];
     }
     bool removeEdge(long int from, long int to)
     {
@@ -471,7 +471,9 @@ public:
             Road unblock_road=blocked_roads[index].data;
             blocked_roads.removeAtPosition(index);
             addEdge(unblock_road);
+            return true;
         }
+        return false;
     }
 };
 

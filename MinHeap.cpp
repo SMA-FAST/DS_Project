@@ -1,171 +1,218 @@
 #include <iostream>
 #include <cstring>
-#define MAX_SIZE 100
+#include <cstdlib>
 
 using namespace std;
 
-// Structure to represent a road
-struct Road {
-    char intersection1[20];
-    char intersection2[20];
-    int travelTime; // Travel time in seconds
-    bool isClosed;  // True if the road is closed
-};
-
-// Min-Heap for Roads
-class MinHeap {
+class road_network
+{
 private:
-    Road heap[MAX_SIZE];
-    int size;
+    // Road structure with single-character names
+    struct road
+    {
+        char s;  // start intersection
+        char e;  // end intersection
+        int d;   // distance
+        bool c;  // is congested
+        bool m;  // is under maintenance
+    };
 
-    // Swap two elements
-    void swap(Road& a, Road& b) {
-        Road temp = a;
-        a = b;
-        b = temp;
-    }
+    // Dynamic array management for roads
+    class road_manager
+    {
+    private:
+        road* roads;
+        int capacity;
+        int count;
 
-    // Heapify upwards (used after insertion)
-    void heapifyUp(int index) {
-        while (index > 0) {
-            int parent = (index - 1) / 2;
-            if (heap[index].travelTime < heap[parent].travelTime) {
-                swap(heap[index], heap[parent]);
-                index = parent;
-            } else {
-                break;
+        void resize()
+        {
+            int new_capacity = capacity == 0 ? 1 : capacity * 2;
+            road* new_roads = new road[new_capacity];
+            
+            for (int i = 0; i < count; ++i)
+            {
+                new_roads[i] = roads[i];
+            }
+            
+            delete[] roads;
+            roads = new_roads;
+            capacity = new_capacity;
+        }
+
+    public:
+        road_manager() : roads(nullptr), capacity(0), count(0) {}
+
+        ~road_manager()
+        {
+            delete[] roads;
+        }
+
+        void add(char start, char end, int distance, bool congested, bool maintenance)
+        {
+            if (count == capacity)
+            {
+                resize();
+            }
+            
+            roads[count] = {start, end, distance, congested, maintenance};
+            count++;
+        }
+
+        road* get_roads()
+        {
+            return roads;
+        }
+
+        int get_count() const
+        {
+            return count;
+        }
+
+        // Find roads connecting specific intersections
+        void find_connections(char start, char end)
+        {
+            cout << "Connections for route " << start << " -> " << end << ":\n";
+            for (int i = 0; i < count; ++i)
+            {
+                if ((roads[i].s == start && roads[i].e == end) || 
+                    (roads[i].s == end && roads[i].e == start))
+                {
+                    cout << "Road: " << roads[i].s << " - " << roads[i].e 
+                         << ", Distance: " << roads[i].d 
+                         << ", Congested: " << (roads[i].c ? "Yes" : "No")
+                         << ", Maintenance: " << (roads[i].m ? "Yes" : "No") << "\n";
+                }
             }
         }
-    }
+    };
 
-    // Heapify downwards (used after deletion)
-    void heapifyDown(int index) {
-        while (true) {
-            int left = 2 * index + 1;
-            int right = 2 * index + 2;
-            int smallest = index;
+    // Dynamic intersection tracking
+    class intersection_manager
+    {
+    private:
+        char* intersections;
+        int capacity;
+        int count;
 
-            if (left < size && heap[left].travelTime < heap[smallest].travelTime)
-                smallest = left;
-            if (right < size && heap[right].travelTime < heap[smallest].travelTime)
-                smallest = right;
-
-            if (smallest != index) {
-                swap(heap[index], heap[smallest]);
-                index = smallest;
-            } else {
-                break;
+        void resize()
+        {
+            int new_capacity = capacity == 0 ? 1 : capacity * 2;
+            char* new_intersections = new char[new_capacity];
+            
+            for (int i = 0; i < count; ++i)
+            {
+                new_intersections[i] = intersections[i];
             }
+            
+            delete[] intersections;
+            intersections = new_intersections;
+            capacity = new_capacity;
         }
-    }
+
+    public:
+        intersection_manager() : intersections(nullptr), capacity(0), count(0) {}
+
+        ~intersection_manager()
+        {
+            delete[] intersections;
+        }
+
+        void add(char intersection)
+        {
+            // Prevent duplicates
+            for (int i = 0; i < count; ++i)
+            {
+                if (intersections[i] == intersection)
+                {
+                    return;
+                }
+            }
+
+            if (count == capacity)
+            {
+                resize();
+            }
+            
+            intersections[count] = intersection;
+            count++;
+        }
+
+        void print_intersections()
+        {
+            cout << "Intersections: ";
+            for (int i = 0; i < count; ++i)
+            {
+                cout << intersections[i] << " ";
+            }
+            cout << "\n";
+        }
+
+        int get_count() const
+        {
+            return count;
+        }
+    };
+
+    road_manager roads;
+    intersection_manager intersections;
 
 public:
-    MinHeap() : size(0) {}
+    // Add road with automatic intersection tracking
+    void add_road(char start, char end, int distance, bool congested = false, bool maintenance = false)
+    {
+        // Add intersections
+        intersections.add(start);
+        intersections.add(end);
 
-    // Insert a new road into the heap
-    void push(const char* intersection1, const char* intersection2, int travelTime, bool isClosed) {
-        if (size >= MAX_SIZE) {
-            cout << "Heap is full.\n";
-            return;
-        }
-        strcpy(heap[size].intersection1, intersection1);
-        strcpy(heap[size].intersection2, intersection2);
-        heap[size].travelTime = travelTime;
-        heap[size].isClosed = isClosed;
-        heapifyUp(size);
-        size++;
+        // Add road
+        roads.add(start, end, distance, congested, maintenance);
     }
 
-    // Remove and return the road with the smallest travel time
-    Road pop() {
-        if (size == 0) {
-            cout << "Heap is empty.\n";
-            Road temp;
-strcpy(temp.intersection1, "");
-strcpy(temp.intersection2, "");
-temp.travelTime = -1;
-temp.isClosed = false;
-return temp;
-
+    // Analyze network details
+    void analyze_network()
+    {
+        cout << "Network Analysis:\n";
+        
+        // Print intersections
+        intersections.print_intersections();
+        
+        // Print road details
+        cout << "Total Roads: " << roads.get_count() << "\n";
+        
+        road* road_list = roads.get_roads();
+        for (int i = 0; i < roads.get_count(); ++i)
+        {
+            cout << "Road: " << road_list[i].s << " -> " << road_list[i].e 
+                 << ", Distance: " << road_list[i].d 
+                 << ", Congested: " << (road_list[i].c ? "Yes" : "No")
+                 << ", Maintenance: " << (road_list[i].m ? "Yes" : "No") << "\n";
         }
-        Road top = heap[0];
-        heap[0] = heap[--size];
-        heapifyDown(0);
-        return top;
     }
 
-    // Check if the heap is empty
-    bool isEmpty() const {
-        return size == 0;
-    }
-
-    // Print the heap (for debugging)
-    void print() const {
-        for (int i = 0; i < size; i++) {
-            cout << "Road: " << heap[i].intersection1 << " -> " << heap[i].intersection2
-                 << ", Travel Time: " << heap[i].travelTime
-                 << ", Closed: " << (heap[i].isClosed ? "Yes" : "No") << "\n";
-        }
+    // Find road connections
+    void find_road_connections(char start, char end)
+    {
+        roads.find_connections(start, end);
     }
 };
 
-// Parse road closures and populate the heap
-void populateHeap(MinHeap& heap, const char roadClosureData[][3][20], int roadCount,
-                  const char travelTimeData[][3][20], int travelCount) {
-    for (int i = 0; i < travelCount; i++) {
-        const char* intersection1 = travelTimeData[i][0];
-        const char* intersection2 = travelTimeData[i][1];
-        int travelTime = atoi(travelTimeData[i][2]);
+// int main()
+// {
+//     road_network network;
 
-        // Check if the road is closed
-        bool isClosed = false;
-        for (int j = 0; j < roadCount; j++) {
-            if ((strcmp(intersection1, roadClosureData[j][0]) == 0 &&
-                 strcmp(intersection2, roadClosureData[j][1]) == 0) ||
-                (strcmp(intersection2, roadClosureData[j][0]) == 0 &&
-                 strcmp(intersection1, roadClosureData[j][1]) == 0)) {
-                isClosed = true;
-                break;
-            }
-        }
+//     // Add roads
+//     network.add_road('A', 'B', 50, true, false);
+//     network.add_road('B', 'C', 70, false, true);
+//     network.add_road('A', 'C', 120, false, false);
+//     network.add_road('C', 'D', 30, true, true);
 
-        heap.push(intersection1, intersection2, travelTime, isClosed);
-    }
-}
+//     // Analyze network
+//     network.analyze_network();
 
-int main() {
-    MinHeap heap;
+//     // Find specific road connections
+//     network.find_road_connections('A', 'B');
+//     network.find_road_connections('B', 'C');
 
-    // Sample road closures data
-    const char roadClosureData[2][3][20] = {
-        {"A", "B", "Blocked"},
-        {"C", "D", "Blocked"}
-    };
-
-    // Sample travel time data
-    const char travelTimeData[3][3][20] = {
-        {"A", "B", "50"},
-        {"C", "D", "70"},
-        {"E", "F", "30"}
-    };
-
-    // Populate the heap
-    populateHeap(heap, roadClosureData, 2, travelTimeData, 3);
-
-    // Process the heap
-    cout << "Initial Heap:\n";
-    heap.print();
-
-    cout << "\nProcessing Roads:\n";
-    while (!heap.isEmpty()) {
-        Road top = heap.pop();
-        if (!top.isClosed) {
-            cout << "Road: " << top.intersection1 << " -> " << top.intersection2
-                 << ", Travel Time: " << top.travelTime << "\n";
-        } else {
-            cout << "Road: " << top.intersection1 << " -> " << top.intersection2 << " is closed.\n";
-        }
-    }
-
-    return 0;
-}
+//     return 0;
+// }
