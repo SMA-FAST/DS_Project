@@ -3,67 +3,76 @@
 #include "Queue.cpp"
 #include "Stack.cpp"
 #include "LinkedList.cpp"
+#include "ObjectClasses.cpp"
 using namespace std;
 
-template <class EgdeObject>
 struct GraphEdge
 {
     long int from_vertex;
     long int to_vertex;
     float weight;
-    EgdeObject data;
+    Road data;
 };
-template <class EgdeObject>
-ostream &operator<<(ostream &os, GraphEdge<EgdeObject> &edge)
+ostream &operator<<(ostream &os, GraphEdge &edge)
 {
     os << "(" << "From Vertex " << edge.from_vertex << ", " << "To Vertex " << edge.to_vertex << ", Weight " << edge.weight << ")";
     return os;
 }
 
-template <class NodeObject>
 struct GraphNode
 {
     long int id;
-    NodeObject data;
+    Intersection data;
 };
-template <class NodeObject>
-ostream &operator<<(ostream &os, GraphNode<NodeObject> &node)
+ostream &operator<<(ostream &os, GraphNode &node)
 {
     os << "Vertex " << node.id << endl;
     return os;
 }
 
-template <class NodeObject, class EdgeObject>
+template <class Intersection, class Road>
 class Graph
 {
 public:
-    LinkedList<GraphNode<NodeObject>> vertices;
-    LinkedList<LinkedList<GraphEdge<EdgeObject>>> conneting_edges;
+    LinkedList<GraphNode> vertices;
+    LinkedList<LinkedList<GraphEdge>> conneting_edges;
 
     Graph(int n = 0)
     {
         for (int id = 0; id < n; i++)
         {
-            GraphNode<NodeObject> node{id};
+            GraphNode node{id};
             vertices.append(node);
-            conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
+            conneting_edges.append(LinkedList<GraphEdge>());
         }
     }
-    bool addEdge(int from, int to, float weight, EdgeObject new_data = EdgeObject())
+    bool addEdge(int from, int to, float weight, Road new_data = Road())
     {
-        
+
         if (to < vertices.size && from < vertices.size)
         {
-            conneting_edges[from].append(GraphEdge<EdgeObject>{from, to, weight, new_data});
+            conneting_edges[from].append(GraphEdge{from, to, weight, new_data});
             return true;
         }
         return false;
     }
-    void addVertex(NodeObject new_data = NodeObject())
+    bool addEdge(Road new_data)
+    {
+        to = findVertexIndex(new_data.to);
+        from = findVertexIndex(new_data.from);
+        weight=new_data.travel_time;
+        if (to >= 0 && from >= 0 && to < vertices.size && from < vertices.size)
+        {
+            conneting_edges[from].append(GraphEdge{from, to, weight, new_data});
+            return true;
+        }
+        return false;
+    }
+    void addVertex(Intersection new_data)
     {
         long int id = vertices.size;
         vertices.append(GraphNode{id, new_data});
-        conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
+        conneting_edges.append(LinkedList<GraphEdge>());
     }
 
     void printGraph()
@@ -77,7 +86,7 @@ public:
     }
     void BFS(int start_id)
     {
-        GraphNode<NodeObject> *start_node = &vertices[start_id];
+        GraphNode *start_node = &vertices[start_id];
 
         if (!start_node)
         {
@@ -86,14 +95,14 @@ public:
         }
 
         bool visited[vertices.size] = {false};
-        Queue<GraphNode<NodeObject> *> q;
+        Queue<GraphNode *> q;
         q.enqueue(start_node);
         visited[start_node->id] = true;
 
         cout << "BFS Traversal: ";
         while (!q.isEmpty())
         {
-            GraphNode<NodeObject> *current_node = q.dequeue();
+            GraphNode *current_node = q.dequeue();
             cout << current_node->id << " ";
 
             for (int i = 0; i < conneting_edges[current_node->id].size; i++)
@@ -108,7 +117,7 @@ public:
         }
         cout << endl;
     }
-    int findVertexIndex(NodeObject data)
+    int findVertexIndex(Intersection data)
     {
         for (int i = 0; i < vertices.size; i++)
         {
@@ -130,7 +139,7 @@ public:
         }
         return -1;
     }
-    int findVertexID(NodeObject data)
+    int findVertexID(Intersection data)
     {
         for (int i = 0; i < vertices.size; i++)
         {
@@ -141,7 +150,7 @@ public:
         }
         return -1;
     }
-    LinkedList<GraphEdge<EdgeObject>> getAdjacencyList(int index)
+    LinkedList<GraphEdge> getAdjacencyList(int index)
     {
         return conneting_edges[index];
     }
@@ -159,7 +168,7 @@ public:
         }
         return -1;
     }
-    GraphEdge<EdgeObject> getEdge(int from, int to)
+    GraphEdge getEdge(int from, int to)
     {
         int i = getEdgeIndex(from, to);
         return conneting_edges[from][to];
@@ -175,7 +184,7 @@ public:
         }
         return false;
     }
-    bool removeEdge(NodeObject from, NodeObject to)
+    bool removeEdge(Intersection from, Intersection to)
     {
         int from_index = findVertexID(from), to_index = (findVertexID(to));
         from_index = findVertexIndex(from_index), to_index = findVertexIndex(to_index);
@@ -190,22 +199,22 @@ public:
     bool removeVertex(int id)
     {
         int index = findVertexIndex(id);
-        if(index>=0)
+        if (index >= 0)
         {
-        vertices.removeAtPosition(index);
-        conneting_edges.removeAtPosition(index);
-        return true;
+            vertices.removeAtPosition(index);
+            conneting_edges.removeAtPosition(index);
+            return true;
         }
         return false;
     }
-        bool removeVertex(NodeObject data)
+    bool removeVertex(Intersection data)
     {
         int index = findVertexIndex(data);
-        if(index>=0)
+        if (index >= 0)
         {
-        vertices.removeAtPosition(index);
-        conneting_edges.removeAtPosition(index);
-        return true;
+            vertices.removeAtPosition(index);
+            conneting_edges.removeAtPosition(index);
+            return true;
         }
         return false;
     }
