@@ -15,7 +15,8 @@ struct GraphEdge
 };
 ostream &operator<<(ostream &os, GraphEdge &edge)
 {
-    os << "(" << "From Vertex " << edge.from_vertex << ", " << "To Vertex " << edge.to_vertex << ", Weight " << edge.weight << ")";
+    if (!edge.data.is_closed)
+        os << "(" << "From Intersection " << edge.data.from << ", " << "To Intersection " << edge.data.to << ", with Travel Time " << edge.weight << ")";
     return os;
 }
 
@@ -26,7 +27,7 @@ struct GraphNode
 };
 ostream &operator<<(ostream &os, GraphNode &node)
 {
-    os << "Vertex " << node.id << endl;
+    os << "Intersection " << node.id << endl;
     return os;
 }
 
@@ -80,7 +81,7 @@ public:
         for (long int i = 0; i < vertices.size; i++)
         {
             cout << vertices[i];
-            cout << "Connection Edges: \n";
+            cout << "Connection Roads: \n";
             connecting_edges[i].display();
         }
     }
@@ -206,7 +207,7 @@ public:
     {
         if (from < vertices.size)
         {
-            for (long int i = 0; i < vertices.size; i++)
+            for (long int i = 0; i < connecting_edges[from].size; i++)
             {
                 if (connecting_edges[from][i].to_vertex == to)
                 {
@@ -216,7 +217,7 @@ public:
         }
         return -1;
     }
-    GraphEdge getEdge(long int from, long int to)
+    GraphEdge &getEdge(long int from, long int to)
     {
         long int i = getEdgeIndex(from, to);
         return connecting_edges[from][to];
@@ -224,6 +225,17 @@ public:
     bool removeEdge(long int from, long int to)
     {
         from = findVertexIndex(from), to = findVertexIndex(to);
+        long int i = getEdgeIndex(from, to);
+        if (from > 0 && i > 0)
+        {
+            connecting_edges[from].removeAtPosition(i);
+            return true;
+        }
+        return false;
+    }
+    bool removeEdge(Road road)
+    {
+        long int from = findVertexIndex(road.from), to = findVertexIndex(road.to);
         long int i = getEdgeIndex(from, to);
         if (from > 0 && i > 0)
         {
@@ -253,7 +265,7 @@ public:
         }
         return false;
     }
-    bool removeEdgeI(Intersection from, Intersection to)
+    bool removeEdgeInter(Intersection from, Intersection to)
     {
         long int from_index = findVertexID(from), to_index = (findVertexID(to));
         from_index = findVertexIndex(from_index), to_index = findVertexIndex(to_index);
@@ -265,7 +277,7 @@ public:
         }
         return false;
     }
-    bool removeVertexI(Intersection data)
+    bool removeVertexInter(Intersection data)
     {
         long int index = findVertexIndex(data);
         long int id = findVertexID(data);
@@ -289,27 +301,27 @@ public:
     }
 };
 
-int main()
-{
-    Road r = Road('a', 'b', 0);
-    Graph g(6);
-    g.addEdge(0, 1, 2, r);
-    g.addEdge(1, 2, 5, r);
-    g.addEdge(1, 3, 7, r);
-    g.addEdge(2, 4, 3, r);
-    g.addEdge(2, 5, 8, r);
-    g.addEdge(3, 4, 9, r);
-    g.addEdge(3, 5, 10, r);
-    g.addEdge(4, 5, 11, r);
-    g.addEdge(4, 0, 1, r);
-    g.printGraph();
-    g.removeEdge(2, 4);
-    g.printGraph();
-    g.removeEdge(2, 4);
-    g.printGraph();
-    g.removeVertex(2);
-    g.printGraph();
-    g.BFS(4);
-    g.DFS(0);
-    return 0;
-}
+// int main()
+// {
+//     Road r = Road('a', 'b', 0);
+//     Graph g(6);
+//     g.addEdge(0, 1, 2, r);
+//     g.addEdge(1, 2, 5, r);
+//     g.addEdge(1, 3, 7, r);
+//     g.addEdge(2, 4, 3, r);
+//     g.addEdge(2, 5, 8, r);
+//     g.addEdge(3, 4, 9, r);
+//     g.addEdge(3, 5, 10, r);
+//     g.addEdge(4, 5, 11, r);
+//     g.addEdge(4, 0, 1, r);
+//     g.printGraph();
+//     g.removeEdge(2, 4);
+//     g.printGraph();
+//     g.removeEdge(2, 4);
+//     g.printGraph();
+//     g.removeVertex(2);
+//     g.printGraph();
+//     g.BFS(4);
+//     g.DFS(0);
+//     return 0;
+// }
