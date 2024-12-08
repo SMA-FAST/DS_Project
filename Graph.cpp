@@ -30,40 +30,40 @@ ostream &operator<<(ostream &os, GraphNode &node)
     return os;
 }
 
-template <class Intersection, class Road>
+// template <class Intersection, class Road>
 class Graph
 {
 public:
     LinkedList<GraphNode> vertices;
-    LinkedList<LinkedList<GraphEdge>> conneting_edges;
+    LinkedList<LinkedList<GraphEdge>> connecting_edges;
 
-    Graph(int n = 0)
+    Graph(long int n = 0)
     {
-        for (int id = 0; id < n; id++)
+        for (long int id = 0; id < n; id++)
         {
             GraphNode node{id};
             vertices.append(node);
-            conneting_edges.append(LinkedList<GraphEdge>());
+            connecting_edges.append(LinkedList<GraphEdge>());
         }
     }
-    bool addEdge(int from, int to, float weight, Road new_data = Road())
+    bool addEdge(long int from, long int to, float weight, Road new_data)
     {
         if (to < vertices.size && from < vertices.size)
         {
-            conneting_edges[from].append(GraphEdge{from, to, weight, new_data});
+            connecting_edges[from].append(GraphEdge{from, to, weight, new_data});
             return true;
         }
         return false;
     }
     bool addEdge(Road new_data)
     {
-        int to = findVertexIndex(new_data.to);
-        int from = findVertexIndex(new_data.from);
-        float weight=new_data.travel_time;
-        int already_exist=getEdgeIndex(to,from);
-        if (already_exist==-1 && to >= 0 && from >= 0 && to < vertices.size && from < vertices.size)
+        long int to = findVertexIndex(new_data.to);
+        long int from = findVertexIndex(new_data.from);
+        float weight = new_data.travel_time;
+        long int already_exist = getEdgeIndex(to, from);
+        if (already_exist == -1 && to >= 0 && from >= 0 && to < vertices.size && from < vertices.size)
         {
-            conneting_edges[from].append(GraphEdge{from, to, weight, new_data});
+            connecting_edges[from].append(GraphEdge{from, to, weight, new_data});
             return true;
         }
         return false;
@@ -72,26 +72,28 @@ public:
     {
         long int id = vertices.size;
         vertices.append(GraphNode{id, new_data});
-        conneting_edges.append(LinkedList<GraphEdge>());
+        connecting_edges.append(LinkedList<GraphEdge>());
     }
 
     void printGraph()
     {
-        for (int i = 0; i < vertices.size; i++)
+        for (long int i = 0; i < vertices.size; i++)
         {
             cout << vertices[i];
             cout << "Connection Edges: \n";
-            conneting_edges[i].display();
+            connecting_edges[i].display();
         }
     }
-    void BFS(int start_id)
+    void BFS(long int start_id)
     {
-        GraphNode *start_node = &vertices[start_id];
-
-        if (!start_node)
+        GraphNode *start_node = nullptr;
+        for (long int i = 0; i < vertices.size; i++)
         {
-            cout << "Start node not found!" << endl;
-            return;
+            if (vertices[i].id == start_id)
+            {
+                start_node = &vertices[i];
+                break;
+            }
         }
 
         bool visited[vertices.size] = {false};
@@ -105,21 +107,67 @@ public:
             GraphNode *current_node = q.dequeue();
             cout << current_node->id << " ";
 
-            for (int i = 0; i < conneting_edges[current_node->id].size; i++)
+            for (long int i = 0; i < connecting_edges[findVertexIndex(current_node->id)].size; i++)
             {
-                long int neighbor_id = conneting_edges[current_node->id][i].to_vertex;
-                if (!visited[neighbor_id])
+                long int neighbor_id = connecting_edges[findVertexIndex(current_node->id)][i].to_vertex;
+                if (!visited[findVertexIndex(neighbor_id)])
                 {
-                    visited[neighbor_id] = true;
-                    q.enqueue(&vertices[neighbor_id]);
+                    visited[findVertexIndex(neighbor_id)] = true;
+                    q.enqueue(&vertices[findVertexIndex(neighbor_id)]);
                 }
             }
         }
         cout << endl;
     }
-    int findVertexIndex(Intersection data)
+    void DFS(long int start_id)
     {
-        for (int i = 0; i < vertices.size; i++)
+        GraphNode *start_node = nullptr;
+        for (long int i = 0; i < vertices.size; i++)
+        {
+            if (vertices[i].id == start_id)
+            {
+                start_node = &vertices[i];
+                break;
+            }
+        }
+
+        if (!start_node)
+        {
+            cout << "Start node not found!" << endl;
+            return;
+        }
+
+        bool visited[vertices.size] = {false};
+        Stack<GraphNode *> s;
+        s.push(start_node);
+
+        cout << "DFS Traversal: ";
+        while (!s.isEmpty())
+        {
+            GraphNode *current_node = s.pop();
+
+            if (!visited[findVertexIndex(current_node->id)])
+            {
+                visited[findVertexIndex(current_node->id)] = true;
+                cout << current_node->id << " ";
+            }
+
+            // Pushing unvisited neighbors onto stack
+            for (long int i = 0; i < connecting_edges[findVertexIndex(current_node->id)].size; i++)
+            {
+                long int index = findVertexIndex(connecting_edges[findVertexIndex(current_node->id)][i].to_vertex);
+                GraphNode *neighbor = &vertices[index];
+                if (!visited[findVertexIndex(neighbor->id)])
+                {
+                    s.push(neighbor);
+                }
+            }
+        }
+        cout << endl;
+    }
+    long int findVertexIndex(Intersection data)
+    {
+        for (long int i = 0; i < vertices.size; i++)
         {
             if (vertices[i].data == data)
             {
@@ -128,9 +176,9 @@ public:
         }
         return -1;
     }
-    int findVertexIndex(int id)
+    long int findVertexIndex(long int id)
     {
-        for (int i = 0; i < vertices.size; i++)
+        for (long int i = 0; i < vertices.size; i++)
         {
             if (vertices[i].id == id)
             {
@@ -139,9 +187,9 @@ public:
         }
         return -1;
     }
-    int findVertexID(Intersection data)
+    long int findVertexID(Intersection data)
     {
-        for (int i = 0; i < vertices.size; i++)
+        for (long int i = 0; i < vertices.size; i++)
         {
             if (vertices[i].data == data)
             {
@@ -150,17 +198,17 @@ public:
         }
         return -1;
     }
-    LinkedList<GraphEdge> getAdjacencyList(int index)
+    LinkedList<GraphEdge> getAdjacencyList(long int index)
     {
-        return conneting_edges[index];
+        return connecting_edges[index];
     }
-    int getEdgeIndex(int from, int to)
+    long int getEdgeIndex(long int from, long int to)
     {
         if (from < vertices.size)
         {
-            for (int i = 0; i < vertices.size; i++)
+            for (long int i = 0; i < vertices.size; i++)
             {
-                if (conneting_edges[from][i].to_vertex == to)
+                if (connecting_edges[from][i].to_vertex == to)
                 {
                     return i;
                 }
@@ -168,77 +216,100 @@ public:
         }
         return -1;
     }
-    GraphEdge getEdge(int from, int to)
+    GraphEdge getEdge(long int from, long int to)
     {
-        int i = getEdgeIndex(from, to);
-        return conneting_edges[from][to];
+        long int i = getEdgeIndex(from, to);
+        return connecting_edges[from][to];
     }
-    bool removeEdge(int from, int to)
+    bool removeEdge(long int from, long int to)
     {
         from = findVertexIndex(from), to = findVertexIndex(to);
-        int i = getEdgeIndex(from, to);
+        long int i = getEdgeIndex(from, to);
         if (from > 0 && i > 0)
         {
-            conneting_edges[from].removeAtPosition(i);
+            connecting_edges[from].removeAtPosition(i);
             return true;
         }
         return false;
     }
-    bool removeEdge(Intersection from, Intersection to)
+    bool removeVertex(long int id)
     {
-        int from_index = findVertexID(from), to_index = (findVertexID(to));
+        long int index = findVertexIndex(id);
+        if (index >= 0)
+        {
+            vertices.removeAtPosition(index);
+            connecting_edges.removeAtPosition(index);
+            for (int to = 0; to < connecting_edges.size; to++)
+            {
+                for (int i = 0; i < connecting_edges[to].size; i++)
+                {
+                    if (connecting_edges[to][i].to_vertex == id)
+                    {
+                        connecting_edges[to].removeAtPosition(i);
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    bool removeEdgeI(Intersection from, Intersection to)
+    {
+        long int from_index = findVertexID(from), to_index = (findVertexID(to));
         from_index = findVertexIndex(from_index), to_index = findVertexIndex(to_index);
-        int i = getEdgeIndex(from_index, to_index);
+        long int i = getEdgeIndex(from_index, to_index);
         if (from >= 0 && i >= 0)
         {
-            conneting_edges[from].removeAtPosition(i);
+            connecting_edges[from].removeAtPosition(i);
             return true;
         }
         return false;
     }
-    bool removeVertex(int id)
+    bool removeVertexI(Intersection data)
     {
-        int index = findVertexIndex(id);
+        long int index = findVertexIndex(data);
+        long int id = findVertexID(data);
         if (index >= 0)
         {
             vertices.removeAtPosition(index);
-            conneting_edges.removeAtPosition(index);
-            return true;
-        }
-        return false;
-    }
-    bool removeVertex(Intersection data)
-    {
-        int index = findVertexIndex(data);
-        if (index >= 0)
-        {
-            vertices.removeAtPosition(index);
-            conneting_edges.removeAtPosition(index);
+            connecting_edges.removeAtPosition(index);
+            for (int to = 0; to < connecting_edges.size; to++)
+            {
+                for (int i = 0; i < connecting_edges[to].size; i++)
+                {
+                    if (connecting_edges[to][i].to_vertex == id)
+                    {
+                        connecting_edges[to].removeAtPosition(i);
+                    }
+                }
+            }
             return true;
         }
         return false;
     }
 };
 
-// int main()
-// {
-//     Graph<char, string> g(6);
-//     g.addEdge(0, 1, 2);
-//     g.addEdge(1, 2, 5);
-//     g.addEdge(1, 3, 7);
-//     g.addEdge(2, 4, 3);
-//     g.addEdge(2, 5, 8);
-//     g.addEdge(3, 4, 9);
-//     g.addEdge(3, 5, 10);
-//     g.addEdge(4, 5, 11);
-//     g.addEdge(4, 0, 1);
-//     g.printGraph();
-//     g.removeEdge(2, 4);
-//     g.printGraph();
-//     g.removeEdge(2, 4);
-//     g.printGraph();
-//     g.removeVertex(2);
-//     g.printGraph();
-//     g.BFS(4);
-//     return 0;
-// }
+int main()
+{
+    Road r = Road('a', 'b', 0);
+    Graph g(6);
+    g.addEdge(0, 1, 2, r);
+    g.addEdge(1, 2, 5, r);
+    g.addEdge(1, 3, 7, r);
+    g.addEdge(2, 4, 3, r);
+    g.addEdge(2, 5, 8, r);
+    g.addEdge(3, 4, 9, r);
+    g.addEdge(3, 5, 10, r);
+    g.addEdge(4, 5, 11, r);
+    g.addEdge(4, 0, 1, r);
+    g.printGraph();
+    g.removeEdge(2, 4);
+    g.printGraph();
+    g.removeEdge(2, 4);
+    g.printGraph();
+    g.removeVertex(2);
+    g.printGraph();
+    g.BFS(4);
+    g.DFS(0);
+    return 0;
+}
