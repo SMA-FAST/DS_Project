@@ -243,6 +243,18 @@ public:
         cout << "List index out of bound, exiting";
         exit(0); // position not in list node range
     }
+    void reverse() 
+    {
+    Node *curr = head, *prev = nullptr, *next;
+    while (curr != nullptr) 
+    {
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+    }
+    head= prev;
+}
     void empty()
     {
         while (head)
