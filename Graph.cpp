@@ -1,5 +1,6 @@
 // version 2.1
 #include <iostream>
+#define FLT_MAX 2147483647
 #include "Queue.cpp"
 #include "Stack.cpp"
 #include "LinkedList.cpp"
@@ -42,7 +43,7 @@ public:
     {
         for (long int id = 0; id < n; id++)
         {
-            GraphNode node{id};
+            GraphNode node{id,id+97};
             vertices.append(node);
             connecting_edges.append(LinkedList<GraphEdge>());
         }
@@ -299,6 +300,130 @@ public:
         }
         return false;
     }
+    // Assuming your GraphEdge, GraphNode, and other classes are the same as above
+
+    void findShortestPath(long int start_id, long int end_id)
+{
+    if (start_id >= vertices.size || end_id >= vertices.size)
+    {
+        cout << "Invalid vertex ID(s)!" << endl;
+        return;
+    }
+
+    long int n = vertices.size;
+
+    float* distances = new float[n];
+    long int* previous = new long int[n];
+    bool* visited = new bool[n];
+
+    for (long int i = 0; i < n; i++)
+    {
+        distances[i] = FLT_MAX;
+        previous[i] = -1;
+        visited[i] = false;
+    }
+
+    distances[start_id] = 0.0f;
+
+    long int* queue = new long int[n];
+    long int queue_size = 0;
+
+    for (long int i = 0; i < n; i++)
+        queue[queue_size++] = i;
+
+    while (queue_size > 0)
+    {
+        long int current = -1;
+        float min_distance = FLT_MAX;
+        for (long int i = 0; i < queue_size; i++)
+        {
+            if (!visited[queue[i]] && distances[queue[i]] < min_distance)
+            {
+                current = queue[i];
+                min_distance = distances[queue[i]];
+            }
+        }
+
+        if (current == -1 || distances[current] == FLT_MAX)
+        {
+            break;
+        }
+
+        visited[current] = true;
+
+        for (long int i = 0; i < queue_size; i++)
+        {
+            if (queue[i] == current)
+            {
+                queue[i] = queue[--queue_size];
+                break;
+            }
+        }
+
+        for (long int i = 0; i < connecting_edges[current].size; i++)
+        {
+            GraphEdge edge = connecting_edges[current][i];
+            long int neighbor = edge.to_vertex;
+            float new_distance = distances[current] + edge.weight;
+
+            if (!visited[neighbor] && new_distance < distances[neighbor])
+            {
+                distances[neighbor] = new_distance;
+                previous[neighbor] = current;
+            }
+        }
+    }
+
+    if (distances[end_id] == FLT_MAX)
+    {
+        cout << "No path exists between vertex " << start_id << " and vertex " << end_id << "." << endl;
+    }
+    else
+    {
+        cout << "Shortest path distance: " << distances[end_id] << endl;
+        cout << "Path: ";
+
+        LinkedList<Intersection> path;
+        long int current = end_id;
+        while (current != -1)
+        {
+            path.insertAtFirst(vertices[findVertexIndex(current)].data);
+            current = previous[current];
+        }
+
+        for (long int i = 0; i < path.size; i++)
+        {
+            if (i > 0)
+                cout << " -> ";
+            cout << path[i];
+        }
+        cout << endl;
+
+        cout << "Edges in the path: ";
+        current = start_id;
+        for (long int i = 1; i < path.size; i++)
+        {
+            long int next = findVertexID(path[i]);
+            for (long int j = 0; j < connecting_edges[current].size; j++)
+            {
+                GraphEdge edge = connecting_edges[current][j];
+                if (edge.to_vertex == next)
+                {
+                    cout << "(" << vertices[findVertexIndex(current)].data << " -> " << vertices[findVertexIndex(next)].data << ", weight=" << edge.weight << ") ";
+                    break;
+                }
+            }
+            current = next;
+        }
+        cout << endl;
+    }
+
+    delete[] distances;
+    delete[] previous;
+    delete[] visited;
+    delete[] queue;
+}
+
 };
 
 // int main()
@@ -306,6 +431,7 @@ public:
 //     Road r = Road('a', 'b', 0);
 //     Graph g(6);
 //     g.addEdge(0, 1, 2, r);
+//     g.addEdge(0, 4, 2, r);
 //     g.addEdge(1, 2, 5, r);
 //     g.addEdge(1, 3, 7, r);
 //     g.addEdge(2, 4, 3, r);
@@ -323,5 +449,13 @@ public:
 //     g.printGraph();
 //     g.BFS(4);
 //     g.DFS(0);
+//     g.findShortestPath(1,2);
+//     g.findShortestPath(5,1);
+//     g.findShortestPath(1,4);
+//     g.findShortestPath(1,2);
+//     g.findShortestPath(4,1);
+//     g.findShortestPath(1,3);
+//     g.findShortestPath(1,5);
+//     g.findShortestPath(1,5);
 //     return 0;
 // }

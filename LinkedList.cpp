@@ -245,7 +245,7 @@ public:
     }
     void reverse() 
     {
-    Node *curr = head, *prev = nullptr, *next;
+    ListNode<ListObject> *curr = head, *prev = nullptr, *next;
     while (curr != nullptr) 
     {
         next = curr->next;
@@ -253,7 +253,7 @@ public:
         prev = curr;
         curr = next;
     }
-    head= prev;
+    head = prev;
 }
     void empty()
     {
