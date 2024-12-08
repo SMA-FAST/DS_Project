@@ -8,6 +8,8 @@ struct ListNode
 {
     ListObject data;
     ListNode<ListObject> *next = nullptr;
+    ListNode(ListObject data) : data(data), next(nullptr) {}
+    ListNode(){}
 };
 
 template <class ListObject>
@@ -36,8 +38,7 @@ public:
             size++;
             return true;
         }
-        head = new ListNode<ListObject>;
-        head->data = entry;
+        head = new ListNode<ListObject>(entry);
         tail = head;
         size++;
         return true;
@@ -48,7 +49,7 @@ public:
         {
             return insertAtFirst(entry);
         }
-        tail->next = new ListNode<ListObject>;
+        tail->next = new ListNode<ListObject>(entry);
         tail = tail->next;
         tail->data = entry;
         size++;

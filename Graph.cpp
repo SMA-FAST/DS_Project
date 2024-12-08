@@ -39,7 +39,7 @@ public:
 
     Graph(int n = 0)
     {
-        for (int id = 0; id < n; i++)
+        for (int id = 0; id < n; id++)
         {
             GraphNode node{id};
             vertices.append(node);
@@ -48,7 +48,6 @@ public:
     }
     bool addEdge(int from, int to, float weight, Road new_data = Road())
     {
-
         if (to < vertices.size && from < vertices.size)
         {
             conneting_edges[from].append(GraphEdge{from, to, weight, new_data});
@@ -58,10 +57,11 @@ public:
     }
     bool addEdge(Road new_data)
     {
-        to = findVertexIndex(new_data.to);
-        from = findVertexIndex(new_data.from);
-        weight=new_data.travel_time;
-        if (to >= 0 && from >= 0 && to < vertices.size && from < vertices.size)
+        int to = findVertexIndex(new_data.to);
+        int from = findVertexIndex(new_data.from);
+        float weight=new_data.travel_time;
+        int already_exist=getEdgeIndex(to,from);
+        if (already_exist==-1 && to >= 0 && from >= 0 && to < vertices.size && from < vertices.size)
         {
             conneting_edges[from].append(GraphEdge{from, to, weight, new_data});
             return true;
@@ -220,25 +220,25 @@ public:
     }
 };
 
-int main()
-{
-    Graph<char, string> g(6);
-    g.addEdge(0, 1, 2);
-    g.addEdge(1, 2, 5);
-    g.addEdge(1, 3, 7);
-    g.addEdge(2, 4, 3);
-    g.addEdge(2, 5, 8);
-    g.addEdge(3, 4, 9);
-    g.addEdge(3, 5, 10);
-    g.addEdge(4, 5, 11);
-    g.addEdge(4, 0, 1);
-    g.printGraph();
-    g.removeEdge(2, 4);
-    g.printGraph();
-    g.removeEdge(2, 4);
-    g.printGraph();
-    g.removeVertex(2);
-    g.printGraph();
-    g.BFS(4);
-    return 0;
-}
+// int main()
+// {
+//     Graph<char, string> g(6);
+//     g.addEdge(0, 1, 2);
+//     g.addEdge(1, 2, 5);
+//     g.addEdge(1, 3, 7);
+//     g.addEdge(2, 4, 3);
+//     g.addEdge(2, 5, 8);
+//     g.addEdge(3, 4, 9);
+//     g.addEdge(3, 5, 10);
+//     g.addEdge(4, 5, 11);
+//     g.addEdge(4, 0, 1);
+//     g.printGraph();
+//     g.removeEdge(2, 4);
+//     g.printGraph();
+//     g.removeEdge(2, 4);
+//     g.printGraph();
+//     g.removeVertex(2);
+//     g.printGraph();
+//     g.BFS(4);
+//     return 0;
+// }

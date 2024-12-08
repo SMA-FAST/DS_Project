@@ -14,6 +14,14 @@ struct Road
     int travel_time;
     string status;
     bool is_closed;
+    Road()
+    {
+        this->from = 'a';
+        this->to = 'a';
+        travel_time = 0;
+        status = "Clear";
+        is_closed = false;
+    }
     Road(char from, char to, int weight, string status)
     {
         this->from = from;
@@ -58,7 +66,7 @@ struct Vehicle
     char source;
     char destination;
     int priority;
-    Vehicle(string id, char s, char d)
+    Vehicle(string id=0, char s='a', char d='a')
     {
         this->id = id;
         source = s;
