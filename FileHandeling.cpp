@@ -117,22 +117,22 @@ LinkedList<Vehicle> readVehicle(string filename = "vehicles.csv")
     return l;
 }
 
-int main()
-{
-    LinkedList<Vehicle> vl = readVehicle();
-    cout << "Vehicles: \n";
-    for (int i = 0; i < vl.size; i++)
-    {
-        cout << vl[i].id << " " << vl[i].source << " " << vl[i].destination << " " << vl[i].priority << endl;
-    }
-    LinkedList<Vehicle> evl = readEVehicle();
-    for (int i = 0; i < evl.size; i++)
-    {
-        cout << evl[i].id << " " << evl[i].source << " " << evl[i].destination << " " << evl[i].priority << endl;
-    }
-    LinkedList<Road> rl = readRoad();
-    for (int i = 0; i < rl.size; i++)
-    {
-        cout << rl[i].from << " " << rl[i].to << " " << rl[i].travel_time << endl;
-    }
-}
+// int main()
+// {
+//     LinkedList<Vehicle> vl = readVehicle();
+//     cout << "Vehicles: \n";
+//     for (int i = 0; i < vl.size; i++)
+//     {
+//         cout << vl[i].id << " " << vl[i].source << " " << vl[i].destination << " " << vl[i].priority << endl;
+//     }
+//     LinkedList<Vehicle> evl = readEVehicle();
+//     for (int i = 0; i < evl.size; i++)
+//     {
+//         cout << evl[i].id << " " << evl[i].source << " " << evl[i].destination << " " << evl[i].priority << endl;
+//     }
+//     LinkedList<Road> rl = readRoad();
+//     for (int i = 0; i < rl.size; i++)
+//     {
+//         cout << rl[i].from << " " << rl[i].to << " " << rl[i].travel_time << endl;
+//     }
+// }
