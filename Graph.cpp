@@ -28,7 +28,7 @@ struct GraphNode
 };
 ostream &operator<<(ostream &os, GraphNode &node)
 {
-    os << "Intersection " << node.id << endl;
+    os << "Intersection " << node.data << endl;
     return os;
 }
 
@@ -38,12 +38,12 @@ class Graph
 public:
     LinkedList<GraphNode> vertices;
     LinkedList<LinkedList<GraphEdge>> connecting_edges;
-
+    LinkedList<GraphEdge> blocked_roads;
     Graph(long int n = 0)
     {
         for (long int id = 0; id < n; id++)
         {
-            GraphNode node{id,id+97};
+            GraphNode node{id, id + 65};
             vertices.append(node);
             connecting_edges.append(LinkedList<GraphEdge>());
         }
@@ -218,7 +218,21 @@ public:
         }
         return -1;
     }
-    GraphEdge &getEdge(long int from, long int to)
+    long int getBlockedIndex(long int from, long int to)
+    {
+        if (from < vertices.size && to < vertices.size)
+        {
+            for (long int i = 0; i < blocked_roads.size; i++)
+            {
+                if (blocked_roads[i].from_vertex == from && blocked_roads[i].to_vertex == to)
+                {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    GraphEdge getEdge(long int from, long int to)
     {
         long int i = getEdgeIndex(from, to);
         return connecting_edges[from][to];
@@ -303,127 +317,162 @@ public:
     // Assuming your GraphEdge, GraphNode, and other classes are the same as above
 
     void findShortestPath(long int start_id, long int end_id)
-{
-    if (start_id >= vertices.size || end_id >= vertices.size)
     {
-        cout << "Invalid vertex ID(s)!" << endl;
-        return;
-    }
-
-    long int n = vertices.size;
-
-    float* distances = new float[n];
-    long int* previous = new long int[n];
-    bool* visited = new bool[n];
-
-    for (long int i = 0; i < n; i++)
-    {
-        distances[i] = FLT_MAX;
-        previous[i] = -1;
-        visited[i] = false;
-    }
-
-    distances[start_id] = 0.0f;
-
-    long int* queue = new long int[n];
-    long int queue_size = 0;
-
-    for (long int i = 0; i < n; i++)
-        queue[queue_size++] = i;
-
-    while (queue_size > 0)
-    {
-        long int current = -1;
-        float min_distance = FLT_MAX;
-        for (long int i = 0; i < queue_size; i++)
+        if (start_id >= vertices.size || end_id >= vertices.size)
         {
-            if (!visited[queue[i]] && distances[queue[i]] < min_distance)
+            cout << "Invalid vertex ID(s)!" << endl;
+            return;
+        }
+
+        long int n = vertices.size;
+
+        float *distances = new float[n];
+        long int *previous = new long int[n];
+        bool *visited = new bool[n];
+
+        for (long int i = 0; i < n; i++)
+        {
+            distances[i] = FLT_MAX;
+            previous[i] = -1;
+            visited[i] = false;
+        }
+
+        distances[start_id] = 0.0f;
+
+        long int *queue = new long int[n];
+        long int queue_size = 0;
+
+        for (long int i = 0; i < n; i++)
+            queue[queue_size++] = i;
+
+        while (queue_size > 0)
+        {
+            long int current = -1;
+            float min_distance = FLT_MAX;
+            for (long int i = 0; i < queue_size; i++)
             {
-                current = queue[i];
-                min_distance = distances[queue[i]];
+                if (!visited[queue[i]] && distances[queue[i]] < min_distance)
+                {
+                    current = queue[i];
+                    min_distance = distances[queue[i]];
+                }
             }
-        }
 
-        if (current == -1 || distances[current] == FLT_MAX)
-        {
-            break;
-        }
-
-        visited[current] = true;
-
-        for (long int i = 0; i < queue_size; i++)
-        {
-            if (queue[i] == current)
+            if (current == -1 || distances[current] == FLT_MAX)
             {
-                queue[i] = queue[--queue_size];
                 break;
             }
-        }
 
-        for (long int i = 0; i < connecting_edges[current].size; i++)
-        {
-            GraphEdge edge = connecting_edges[current][i];
-            long int neighbor = edge.to_vertex;
-            float new_distance = distances[current] + edge.weight;
+            visited[current] = true;
 
-            if (!visited[neighbor] && new_distance < distances[neighbor])
+            for (long int i = 0; i < queue_size; i++)
             {
-                distances[neighbor] = new_distance;
-                previous[neighbor] = current;
-            }
-        }
-    }
-
-    if (distances[end_id] == FLT_MAX)
-    {
-        cout << "No path exists between vertex " << start_id << " and vertex " << end_id << "." << endl;
-    }
-    else
-    {
-        cout << "Shortest path distance: " << distances[end_id] << endl;
-        cout << "Path: ";
-
-        LinkedList<Intersection> path;
-        long int current = end_id;
-        while (current != -1)
-        {
-            path.insertAtFirst(vertices[findVertexIndex(current)].data);
-            current = previous[current];
-        }
-
-        for (long int i = 0; i < path.size; i++)
-        {
-            if (i > 0)
-                cout << " -> ";
-            cout << path[i];
-        }
-        cout << endl;
-
-        cout << "Edges in the path: ";
-        current = start_id;
-        for (long int i = 1; i < path.size; i++)
-        {
-            long int next = findVertexID(path[i]);
-            for (long int j = 0; j < connecting_edges[current].size; j++)
-            {
-                GraphEdge edge = connecting_edges[current][j];
-                if (edge.to_vertex == next)
+                if (queue[i] == current)
                 {
-                    cout << "(" << vertices[findVertexIndex(current)].data << " -> " << vertices[findVertexIndex(next)].data << ", weight=" << edge.weight << ") ";
+                    queue[i] = queue[--queue_size];
                     break;
                 }
             }
-            current = next;
+
+            for (long int i = 0; i < connecting_edges[current].size; i++)
+            {
+                GraphEdge edge = connecting_edges[current][i];
+                long int neighbor = edge.to_vertex;
+                float new_distance = distances[current] + edge.weight;
+
+                if (!visited[neighbor] && new_distance < distances[neighbor])
+                {
+                    distances[neighbor] = new_distance;
+                    previous[neighbor] = current;
+                }
+            }
         }
-        cout << endl;
+
+        if (distances[end_id] == FLT_MAX)
+        {
+            cout << "No path exists between vertex " << start_id << " and vertex " << end_id << "." << endl;
+        }
+        else
+        {
+            cout << "Shortest path distance: " << distances[end_id] << endl;
+            cout << "Path: ";
+
+            LinkedList<Intersection> path;
+            long int current = end_id;
+            while (current != -1)
+            {
+                path.insertAtFirst(vertices[findVertexIndex(current)].data);
+                current = previous[current];
+            }
+
+            for (long int i = 0; i < path.size; i++)
+            {
+                if (i > 0)
+                    cout << " -> ";
+                cout << path[i];
+            }
+            cout << endl;
+
+            cout << "Edges in the path: ";
+            current = start_id;
+            for (long int i = 1; i < path.size; i++)
+            {
+                long int next = findVertexID(path[i]);
+                for (long int j = 0; j < connecting_edges[current].size; j++)
+                {
+                    GraphEdge edge = connecting_edges[current][j];
+                    if (edge.to_vertex == next)
+                    {
+                        cout << "(" << vertices[findVertexIndex(current)].data << " -> " << vertices[findVertexIndex(next)].data << ", weight=" << edge.weight << ") ";
+                        break;
+                    }
+                }
+                current = next;
+            }
+            cout << endl;
+        }
+
+        delete[] distances;
+        delete[] previous;
+        delete[] visited;
+        delete[] queue;
     }
-
-    delete[] distances;
-    delete[] previous;
-    delete[] visited;
-    delete[] queue;
-}
-
+    bool blockRoad(char from, char to)
+    {
+        int from_id = findVertexID(from), to_id = findVertexID(to);
+        int from_index = findVertexIndex(from), to_index = findVertexIndex(to);
+        if (to_index != -1 && from_index != -1)
+        {
+            for (int i = 0; i < connecting_edges[from_index].size; i++)
+            {
+                if (connecting_edges[from_index][i].to_vertex == to_id)
+                {
+                    Road blocked_road = getEdge(from_id, to_id).data;
+                    removeEdge(blocked_road);
+                    float weight = blocked_road.travel_time;
+                    long int already_exist = getBlockedIndex(to_id, from_id);
+                    if (already_exist == -1 && to_index >= 0 && from_index >= 0 && to_index < vertices.size && from_index < vertices.size)
+                    {
+                        blocked_roads.append(GraphEdge{from_id, to_id, weight, blocked_road});
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        }
+    }
+        bool unblockRoad(char from, char to)
+    {
+        int from_id = findVertexID(from), to_id = findVertexID(to);
+        int from_index = findVertexIndex(from), to_index = findVertexIndex(to);
+        if (to_index != -1 && from_index != -1)
+        {
+            int index=getBlockedIndex(from,to);
+            Road unblock_road=blocked_roads[index].data;
+            blocked_roads.removeAtPosition(index);
+            addEdge(unblock_road);
+        }
+    }
 };
 
 // int main()

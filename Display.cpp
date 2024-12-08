@@ -8,82 +8,79 @@ using namespace std;
 
 int displayMenu()
 {
-    cout << "\nSmart Traffic Management System Simulator"<<endl;
-    cout << "1. Display City Traffic Network"<<endl;
-    cout << "2. Simulate Traffic Signal"<<endl;
-    cout << "3. Emergency Vehicle Routing"<<endl;
-    cout << "4. Check Congestion Status"<<endl;
-    cout << "5. Show Blocked Roads"<<endl;
-    cout << "6. Block a Road"<<endl;
-    cout << "7. Unblock a Road"<<endl;
-    cout << "8. Exit Simulation"<<endl;
+    cout << "\nSmart Traffic Management System Simulator" << endl;
+    cout << "1. Display City Traffic Network" << endl;
+    cout << "2. Simulate Traffic Signal" << endl;
+    cout << "3. Emergency Vehicle Routing" << endl;
+    cout << "4. Check Congestion Status" << endl;
+    cout << "5. Show Blocked Roads" << endl;
+    cout << "6. Block a Road" << endl;
+    cout << "7. Unblock a Road" << endl;
+    cout << "8. Exit Simulation" << endl;
     cout << "Enter your choice: ";
     int choice;
-    cin>> choice;
+    cin >> choice;
     return choice;
 }
 
 void displayCityNetwork(Graph &graph)
 {
-    cout << "\nCity Traffic Network:"<<endl;
+    cout << "\nCity Traffic Network:" << endl;
     graph.printGraph();
 }
 
 void simulateTrafficSignal(Graph &graph)
 {
-    cout << "\nSimulating Traffic Signals:"<<endl;
+    cout << "\nSimulating Traffic Signals:" << endl;
     // Example simulation for roads
     for (int i = 0; i < graph.vertices.size; i++)
     {
         cout << "Intersection " << graph.vertices[i].data
-             << " -> Traffic Light Status: GREEN"<<endl;
+             << " -> Traffic Light Status: GREEN" << endl;
     }
 }
 
 void checkCongestionStatus(Graph &graph)
 {
-    cout << "\nCongestion Status:"<<endl;
+    cout << "\nCongestion Status:" << endl;
     for (int i = 0; i < graph.vertices.size; i++)
     {
-        cout << "Intersection " << graph.vertices[i].data << ": No Congestion"<<endl;
+        cout << "Intersection " << graph.vertices[i].data << ": No Congestion" << endl;
     }
 }
 
 void showBlockedRoads(Graph &graph)
 {
-    cout << "\nBlocked Roads:"<<endl;
-    for (int i = 0; i < graph.vertices.size; i++)
+    cout << "\nBlocked Roads:" << endl;
+    for (int j = 0; j < graph.blocked_roads.size; j++)
     {
-        for (int j = 0; j < graph.connecting_edges[i].size; j++)
-        {
-            if (graph.connecting_edges[i][j].data.is_closed)
-            {
-                cout << "Road " << graph.connecting_edges[i][j].data.from
-                     << " -> " << graph.connecting_edges[i][j].data.to << " is Blocked."<<endl;
-            }
-        }
+        cout << "Road " << graph.blocked_roads[j].data.from
+             << " -> " << graph.blocked_roads[j].data.to << " is Blocked." << endl;
     }
 }
 
-void emergencyVehicleRouting(Graph &graph)
+void emergencyVehicleRouting(Graph &graph, LinkedList<Vehicle> &evs)
 {
-    cout << "\nEmergency Vehicle Routing Simulation:"<<endl;
-    // Simplified BFS routing for emergencies
-    graph.BFS(0);
+    cout << "\nEmergency Vehicle Routing Simulation:" << endl;
+    for (int i = 0; i < evs.size; i++)
+    {
+        cout << "Routing " << evs[i].id << ": " << endl;
+        graph.findShortestPath(graph.findVertexID(evs[i].source), graph.findVertexID(evs[i].destination));
+    }
 }
 
 void blockRoad(Graph &graph, char from, char to)
 {
-    cout << "\nBlocking Road " << from << " -> " << to << ":"<<endl;
-    graph.getEdge(graph.findVertexID(from), graph.findVertexID(from)).data.is_closed = true;
-    cout << "Road Blocked Successfully."<<endl;
+    cout << "\nBlocking Road " << from << " -> " << to << ":" << endl;
+    graph.blockRoad(from, to);
+    cout << "Road Blocked Successfully." << endl;
 }
 
 void unblockRoad(Graph &graph, char from, char to)
 {
-    cout << "\nUnblocking Road " << from << " -> " << to << ":"<<endl;
-    graph.getEdge(graph.findVertexID(from), graph.findVertexID(from)).data.is_closed = false;
-    cout << "Road Unblocked Successfully."<<endl;
+    cout << "\nUnblocking Road " << from << " -> " << to << ":" << endl;
+    graph.unblockRoad(from, to);
+    cout << "Road Unblocked Successfully." << endl;
 }
 
 int main()
@@ -110,7 +107,7 @@ int main()
     while (true)
     {
         system("clear");
-        choice=displayMenu();
+        choice = displayMenu();
         system("clear");
         switch (choice)
         {
@@ -123,7 +120,7 @@ int main()
             simulateTrafficSignal(graph);
             break;
         case 3:
-            emergencyVehicleRouting(graph);
+            emergencyVehicleRouting(graph, eVehicles);
             break;
         case 4:
             checkCongestionStatus(graph);
@@ -148,10 +145,10 @@ int main()
             break;
         }
         case 8:
-            cout << "Exiting Simulation. Goodbye!"<<endl;
+            cout << "Exiting Simulation. Goodbye!" << endl;
             return 0;
         default:
-            cout << "Invalid choice. Please try again."<<endl;
+            cout << "Invalid choice. Please try again." << endl;
         }
         cout << flush;
         int choice2;
