@@ -35,20 +35,28 @@ struct Intersection
 struct Vehicle
 {
     string id;
+    char source;
+    char destination;
     int priority;
-    Vehicle(string id)
+    Vehicle(string id ,char s, char d)
     {
         this->id = id;
+        source = s;
+        destination = d;
         priority = LOW;
     }
-    Vehicle(string id, int priority)
+    Vehicle(string id, char s, char d, int priority)
     {
         this->id = id;
+        source = s;
+        destination = d;
         this->priority = priority;
     }
-    Vehicle(string id, string priority)
+    Vehicle(string id, char s, char d, string priority)
     {
         this->id = id;
+        source = s;
+        destination = d;
         if (priority == "High")
         {
             this->priority = HIGH;

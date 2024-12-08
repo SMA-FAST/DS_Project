@@ -9,3 +9,7 @@
 
 //else add it to graph
 
+Road readRoad(string filename)
+{
+    
+}

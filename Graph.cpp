@@ -42,15 +42,16 @@ public:
 
     Graph(int n = 0)
     {
-        for (int i = 0; i < n; i++)
+        for (int id = 0; id < n; i++)
         {
-            GraphNode<NodeObject> node{i};
+            GraphNode<NodeObject> node{id};
             vertices.append(node);
             conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
         }
     }
     bool addEdge(int from, int to, float weight, EdgeObject new_data = EdgeObject())
     {
+        
         if (to < vertices.size && from < vertices.size)
         {
             conneting_edges[from].append(GraphEdge<EdgeObject>{from, to, weight, new_data});
@@ -64,6 +65,7 @@ public:
         vertices.append(GraphNode{id, new_data});
         conneting_edges.append(LinkedList<GraphEdge<EdgeObject>>());
     }
+
     void printGraph()
     {
         for (int i = 0; i < vertices.size; i++)
@@ -106,7 +108,7 @@ public:
         }
         cout << endl;
     }
-    int findVertexID(NodeObject data)
+    int findVertexIndex(NodeObject data)
     {
         for (int i = 0; i < vertices.size; i++)
         {
@@ -117,38 +119,116 @@ public:
         }
         return -1;
     }
-    LinkedList<GraphEdge<EdgeObject>> getAdjacencyList(int index)
-    {
-        return conneting_edges[index];
-    }
-    int getEdgeIndex(int from, int to)
+    int findVertexIndex(int id)
     {
         for (int i = 0; i < vertices.size; i++)
         {
-            if (conneting_edges[from][i].to_vertex == to)
+            if (vertices[i].id == id)
             {
                 return i;
             }
         }
         return -1;
     }
+    int findVertexID(NodeObject data)
+    {
+        for (int i = 0; i < vertices.size; i++)
+        {
+            if (vertices[i].data == data)
+            {
+                return vertices[i].id;
+            }
+        }
+        return -1;
+    }
+    LinkedList<GraphEdge<EdgeObject>> getAdjacencyList(int index)
+    {
+        return conneting_edges[index];
+    }
+    int getEdgeIndex(int from, int to)
+    {
+        if (from < vertices.size)
+        {
+            for (int i = 0; i < vertices.size; i++)
+            {
+                if (conneting_edges[from][i].to_vertex == to)
+                {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
     GraphEdge<EdgeObject> getEdge(int from, int to)
     {
-        i=getEdgeIndex(from,to);
-        return conneting_edges[from][to]
+        int i = getEdgeIndex(from, to);
+        return conneting_edges[from][to];
+    }
+    bool removeEdge(int from, int to)
+    {
+        from = findVertexIndex(from), to = findVertexIndex(to);
+        int i = getEdgeIndex(from, to);
+        if (from > 0 && i > 0)
+        {
+            conneting_edges[from].removeAtPosition(i);
+            return true;
+        }
+        return false;
+    }
+    bool removeEdge(NodeObject from, NodeObject to)
+    {
+        int from_index = findVertexID(from), to_index = (findVertexID(to));
+        from_index = findVertexIndex(from_index), to_index = findVertexIndex(to_index);
+        int i = getEdgeIndex(from_index, to_index);
+        if (from >= 0 && i >= 0)
+        {
+            conneting_edges[from].removeAtPosition(i);
+            return true;
+        }
+        return false;
+    }
+    bool removeVertex(int id)
+    {
+        int index = findVertexIndex(id);
+        if(index>=0)
+        {
+        vertices.removeAtPosition(index);
+        conneting_edges.removeAtPosition(index);
+        return true;
+        }
+        return false;
+    }
+        bool removeVertex(NodeObject data)
+    {
+        int index = findVertexIndex(data);
+        if(index>=0)
+        {
+        vertices.removeAtPosition(index);
+        conneting_edges.removeAtPosition(index);
+        return true;
+        }
+        return false;
     }
 };
+
 int main()
 {
     Graph<char, string> g(6);
     g.addEdge(0, 1, 2);
     g.addEdge(1, 2, 5);
     g.addEdge(1, 3, 7);
-    g.addEdge(2, 4, 8);
+    g.addEdge(2, 4, 3);
+    g.addEdge(2, 5, 8);
     g.addEdge(3, 4, 9);
     g.addEdge(3, 5, 10);
     g.addEdge(4, 5, 11);
     g.addEdge(4, 0, 1);
+    g.printGraph();
+    g.removeEdge(2, 4);
+    g.printGraph();
+    g.removeEdge(2, 4);
+    g.printGraph();
+    g.removeVertex(2);
     g.printGraph();
     g.BFS(4);
     return 0;
