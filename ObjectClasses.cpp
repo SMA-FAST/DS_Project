@@ -4,10 +4,13 @@
 #define MEDIUM 1
 #define LOW 2
 using namespace std;
+
+//Typedefining Intersection as it has single member or no method
+typedef char Intersection;
 struct Road
 {
-    char from;
-    char to;
+    Intersection from;
+    Intersection to;
     int travel_time;
     string status;
     bool is_closed;
@@ -26,19 +29,36 @@ struct Road
             is_closed = true;
         }
     }
+    Road(char from, char to, int weight)
+    {
+        this->from = from;
+        this->to = to;
+        travel_time = weight;
+        status = "Clear";
+        is_closed = false;
+    }
+    void changeStatus(string new_status)
+    {
+        status = new_status;
+        if (status == "Clear")
+        {
+            is_closed = false;
+        }
+        else
+        {
+            is_closed = true;
+        }
+    }
 };
-// Since there is no additional information in intersection we can just pass char to template of vertex to store the name
-struct Intersection
-{
-    char name;
-};
+// to change Road status use changeStatus method
+
 struct Vehicle
 {
     string id;
     char source;
     char destination;
     int priority;
-    Vehicle(string id ,char s, char d)
+    Vehicle(string id, char s, char d)
     {
         this->id = id;
         source = s;
