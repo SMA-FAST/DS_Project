@@ -220,7 +220,7 @@ public:
     }
     long int getBlockedIndex(long int from, long int to)
     {
-        if (from < vertices.size && to < vertices.size)
+        if (from < vertices.size)
         {
             for (long int i = 0; i < blocked_roads.size; i++)
             {
@@ -456,10 +456,11 @@ public:
                         blocked_roads.append(GraphEdge{from_id, to_id, weight, blocked_road});
                         return true;
                     }
-                    return false;
+                    
                 }
             }
         }
+        return false;
     }
         bool unblockRoad(char from, char to)
     {
@@ -467,7 +468,7 @@ public:
         int from_index = findVertexIndex(from), to_index = findVertexIndex(to);
         if (to_index != -1 && from_index != -1)
         {
-            int index=getBlockedIndex(from,to);
+            int index=getBlockedIndex(from_id,to_id);
             Road unblock_road=blocked_roads[index].data;
             blocked_roads.removeAtPosition(index);
             addEdge(unblock_road);
